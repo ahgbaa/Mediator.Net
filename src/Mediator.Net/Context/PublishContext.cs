@@ -23,6 +23,7 @@ namespace Mediator.Net.Context
 
         public bool TryGetService<T>(out T service)
         {
+            //通过检查 _registeredServices 列表中的每个项,: 项的类型与指定类型 T 相同 和 项是指定类型 T 的子类或实现类。
             var result = _registeredServices.LastOrDefault(x => x.GetType() == typeof(T) || x is T);
             if (result != null)
             {

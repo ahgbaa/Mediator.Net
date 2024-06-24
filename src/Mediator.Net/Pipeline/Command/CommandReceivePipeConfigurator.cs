@@ -11,6 +11,7 @@ namespace Mediator.Net.Pipeline.Command
     {
         private readonly MessageHandlerRegistry _messageHandlerRegistry;
         private readonly IDependencyScope _resolver;
+        
         private readonly IList<IPipeSpecification<IReceiveContext<ICommand>>> _specifications;
 
         public IDependencyScope DependencyScope => _resolver;

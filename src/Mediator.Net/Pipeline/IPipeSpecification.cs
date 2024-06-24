@@ -6,6 +6,7 @@ using Mediator.Net.Contracts;
 
 namespace Mediator.Net.Pipeline
 {
+    //IPipeSpecification的 泛型参数TContext，要求TContext必须实现IContext接口，并且IContext接口的类型参数必须是IMessage类型。
     public interface IPipeSpecification<TContext>
         where TContext : IContext<IMessage>
     {
