@@ -11,13 +11,21 @@ namespace Mediator.Net
 {
     public class MediatorBuilder
     {
-
+        //全局接受管道配置操作
         private Action<IGlobalReceivePipeConfigurator> _globalReceivePipeConfiguratorAction;
+
+        //指令接受管道配置操作
         private Action<ICommandReceivePipeConfigurator> _commandReceivePipeConfiguratorAction;
+
+        //事件接受管道配置操作
         private Action<IEventReceivePipeConfigurator> _eventReceivePipeConfiguratorAction;
+
+        //请求接受管道配置操作
         private Action<IRequestPipeConfigurator<IReceiveContext<IRequest>>> _requestPipeConfiguratorAction;
+
+        //订阅接受管道配置操作
         private Action<IPublishPipeConfigurator> _publishPipeConfiguratorAction;
-        public MessageHandlerRegistry MessageHandlerRegistry {get;}
+        public MessageHandlerRegistry MessageHandlerRegistry { get; }
 
         public MediatorBuilder()
         {
@@ -30,10 +38,12 @@ namespace Mediator.Net
             {
                 ScanRegistration(assembly.DefinedTypes);
             }
+
             return this;
         }
 
-        public MediatorBuilder RegisterHandlers(Func<Assembly, IEnumerable<TypeInfo>> filter, params Assembly[] assemblies)
+        public MediatorBuilder RegisterHandlers(Func<Assembly, IEnumerable<TypeInfo>> filter,
+            params Assembly[] assemblies)
         {
             foreach (var assembly in assemblies)
             {
@@ -83,7 +93,8 @@ namespace Mediator.Net
             return this;
         }
 
-        public MediatorBuilder ConfigureRequestPipe(Action<IRequestPipeConfigurator<IReceiveContext<IRequest>>> configurator)
+        public MediatorBuilder ConfigureRequestPipe(
+            Action<IRequestPipeConfigurator<IReceiveContext<IRequest>>> configurator)
         {
             _requestPipeConfiguratorAction = configurator;
             return this;
@@ -129,31 +140,40 @@ namespace Mediator.Net
             _globalReceivePipeConfiguratorAction?.Invoke(globalPipeConfigurator);
             var globalReceivePipe = globalPipeConfigurator.Build();
 
-            return new Mediator(commandReceivePipe, eventReceivePipe, requestPipe, publishPipe, globalReceivePipe, scope);
+            return new Mediator(commandReceivePipe, eventReceivePipe, requestPipe, publishPipe, globalReceivePipe,
+                scope);
         }
 
-        
+
         private void ScanRegistration(IEnumerable<TypeInfo> typeInfos)
         {
-            var handlers = typeInfos.Where(x => !x.IsAbstract && (TypeUtil.IsAssignableToGenericType(x.AsType(), typeof(ICommandHandler<>)) ||
-                                                                  TypeUtil.IsAssignableToGenericType(x.AsType(), typeof(ICommandHandler<,>)) ||
-                                                                  TypeUtil.IsAssignableToGenericType(x.AsType(), typeof(IEventHandler<>)) ||
-                                                                  TypeUtil.IsAssignableToGenericType(x.AsType(), typeof(IRequestHandler<,>)) ||
-                                                                  TypeUtil.IsAssignableToGenericType(x.AsType(), typeof(IStreamRequestHandler<,>)) 
-                                                                  )).ToList();
+            var handlers = typeInfos.Where(x => !x.IsAbstract &&
+                                                (TypeUtil.IsAssignableToGenericType(x.AsType(),
+                                                     typeof(ICommandHandler<>)) ||
+                                                 TypeUtil.IsAssignableToGenericType(x.AsType(),
+                                                     typeof(ICommandHandler<,>)) ||
+                                                 TypeUtil.IsAssignableToGenericType(x.AsType(),
+                                                     typeof(IEventHandler<>)) ||
+                                                 TypeUtil.IsAssignableToGenericType(x.AsType(),
+                                                     typeof(IRequestHandler<,>)) ||
+                                                 TypeUtil.IsAssignableToGenericType(x.AsType(),
+                                                     typeof(IStreamRequestHandler<,>))
+                                                )).ToList();
             foreach (var handler in handlers)
             {
                 foreach (var implementedInterface in handler.ImplementedInterfaces)
                 {
-                    if (TypeUtil.IsAssignableToGenericType(implementedInterface, typeof(ICommandHandler<>)) || 
-                        TypeUtil.IsAssignableToGenericType(implementedInterface, typeof(ICommandHandler<,>)) || 
-                        TypeUtil.IsAssignableToGenericType(implementedInterface, typeof(IEventHandler<>)) || 
+                    if (TypeUtil.IsAssignableToGenericType(implementedInterface, typeof(ICommandHandler<>)) ||
+                        TypeUtil.IsAssignableToGenericType(implementedInterface, typeof(ICommandHandler<,>)) ||
+                        TypeUtil.IsAssignableToGenericType(implementedInterface, typeof(IEventHandler<>)) ||
                         TypeUtil.IsAssignableToGenericType(implementedInterface, typeof(IRequestHandler<,>)) ||
                         TypeUtil.IsAssignableToGenericType(implementedInterface, typeof(IStreamRequestHandler<,>))
-                        )
+                       )
                     {
-                        MessageHandlerRegistry.MessageBindings.Add(new MessageBinding(implementedInterface.GenericTypeArguments[0], handler.AsType()));
-                    } 
+                        //进行message绑定注册：泛型接口中的第一个泛型参数作为key，handler作为value进行message绑定
+                        MessageHandlerRegistry.MessageBindings.Add(
+                            new MessageBinding(implementedInterface.GenericTypeArguments[0], handler.AsType()));
+                    }
                 }
             }
         }
