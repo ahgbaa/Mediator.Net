@@ -1,13 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using Mediator.Net.Context;
 using Mediator.Net.Contracts;
+using Mediator.Net.Pipeline.Command;
+using Mediator.Net.Pipeline.Event;
+using Mediator.Net.Pipeline.Request;
 
-namespace Mediator.Net.Pipeline
+namespace Mediator.Net.Pipeline.Global
 {
     public class GlobalReceivePipe<TContext> : IGlobalReceivePipe<TContext> where TContext : IContext<IMessage>
     {

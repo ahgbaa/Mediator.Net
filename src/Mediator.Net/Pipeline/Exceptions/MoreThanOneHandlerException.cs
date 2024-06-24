@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Mediator.Net.Pipeline
+namespace Mediator.Net.Pipeline.Exceptions
 {
     public class MoreThanOneHandlerException : Exception
     {

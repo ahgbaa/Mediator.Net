@@ -3,7 +3,7 @@ using System.Linq;
 using Mediator.Net.Context;
 using Mediator.Net.Contracts;
 
-namespace Mediator.Net.Pipeline
+namespace Mediator.Net.Pipeline.PublishPipe
 {
     class PublishPipeConfigurator : IPublishPipeConfigurator
     {

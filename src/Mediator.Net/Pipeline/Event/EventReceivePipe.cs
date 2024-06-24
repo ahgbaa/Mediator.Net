@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
@@ -11,7 +10,7 @@ using Mediator.Net.Contracts;
 
 
 
-namespace Mediator.Net.Pipeline
+namespace Mediator.Net.Pipeline.Event
 {
     public class EventReceivePipe<TContext> : IEventReceivePipe<TContext>
         where TContext : IContext<IEvent>

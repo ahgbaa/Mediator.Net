@@ -2,11 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Threading;
 using System.Threading.Tasks;
 using Mediator.Net.Binding;
 using Mediator.Net.Context;
 using Mediator.Net.Contracts;
+using Mediator.Net.Pipeline.Exceptions;
 
 namespace Mediator.Net.Pipeline
 {

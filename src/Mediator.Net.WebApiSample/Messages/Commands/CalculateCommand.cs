@@ -1,8 +1,9 @@
 ﻿using Mediator.Net.Contracts;
 
-namespace Mediator.Net.WebApiSample.Handlers.CommandHandler
+namespace Mediator.Net.WebApiSample.Messages.Commands
 {
-    public class CalculateCommand: ICommand {
+    public class CalculateCommand : ICommand
+    {
         public int Left { get; }
         public int Right { get; }
 

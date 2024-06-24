@@ -5,7 +5,11 @@ using System.Reflection;
 using Mediator.Net.Binding;
 using Mediator.Net.Context;
 using Mediator.Net.Contracts;
-using Mediator.Net.Pipeline;
+using Mediator.Net.Pipeline.Command;
+using Mediator.Net.Pipeline.Event;
+using Mediator.Net.Pipeline.Global;
+using Mediator.Net.Pipeline.PublishPipe;
+using Mediator.Net.Pipeline.Request;
 
 namespace Mediator.Net
 {
@@ -147,6 +151,8 @@ namespace Mediator.Net
 
         private void ScanRegistration(IEnumerable<TypeInfo> typeInfos)
         {
+            //先把本身类或实现类以及父类中未实现ICommandHandler，IEventHandler，IRequestHandler，IStreamRequestHandler
+            //的类进行一次筛选，全部排除出去
             var handlers = typeInfos.Where(x => !x.IsAbstract &&
                                                 (TypeUtil.IsAssignableToGenericType(x.AsType(),
                                                      typeof(ICommandHandler<>)) ||

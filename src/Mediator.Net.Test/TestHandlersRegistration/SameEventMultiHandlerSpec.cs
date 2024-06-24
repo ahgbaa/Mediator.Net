@@ -1,5 +1,4 @@
 ﻿using System.Linq;
-using Mediator.Net.Binding;
 using Mediator.Net.TestUtil;
 using Mediator.Net.TestUtil.Messages;
 using Shouldly;

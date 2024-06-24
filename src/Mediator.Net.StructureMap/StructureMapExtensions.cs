@@ -1,5 +1,4 @@
-﻿using Mediator.Net.Binding;
-using StructureMap;
+﻿using StructureMap;
 
 namespace Mediator.Net.StructureMap
 {

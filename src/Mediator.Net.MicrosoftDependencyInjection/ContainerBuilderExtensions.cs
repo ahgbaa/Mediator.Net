@@ -1,5 +1,4 @@
-﻿using Mediator.Net.Binding;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 
 namespace Mediator.Net.MicrosoftDependencyInjection
 {

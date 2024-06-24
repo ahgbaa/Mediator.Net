@@ -5,7 +5,7 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using Mediator.Net.Contracts;
-using Mediator.Net.Pipeline;
+using Mediator.Net.Pipeline.PublishPipe;
 
 namespace Mediator.Net.Context
 {

@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Linq;
 using Mediator.Net.TestUtil.Handlers.CommandHandlers;
 using Mediator.Net.TestUtil.Handlers.EventHandlers;
 using Mediator.Net.TestUtil.Handlers.RequestHandlers;

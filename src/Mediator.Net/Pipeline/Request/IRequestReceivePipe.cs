@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using Mediator.Net.Context;
 using Mediator.Net.Contracts;
 
-namespace Mediator.Net.Pipeline
+namespace Mediator.Net.Pipeline.Request
 {
     public interface IRequestReceivePipe<TContext> : IPipe<TContext>
         where TContext : IContext<IRequest>

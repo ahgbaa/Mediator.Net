@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Mediator.Net.Binding;
-using Mediator.Net.TestUtil.Handlers.CommandHandlers;
 using Mediator.Net.TestUtil.Handlers.EventHandlers;
 using Mediator.Net.TestUtil.Messages;
 using Mediator.Net.TestUtil.TestUtils;

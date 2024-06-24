@@ -7,10 +7,10 @@ using System.Threading.Tasks;
 using Mediator.Net.Binding;
 using Mediator.Net.Context;
 using Mediator.Net.Contracts;
+using Mediator.Net.Pipeline.Exceptions;
 
 
-
-namespace Mediator.Net.Pipeline
+namespace Mediator.Net.Pipeline.Command
 {
     public class CommandReceivePipe<TContext> : ICommandReceivePipe<TContext>
         where TContext : IContext<ICommand>

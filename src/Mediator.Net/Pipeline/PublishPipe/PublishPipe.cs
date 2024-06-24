@@ -1,14 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
-using Mediator.Net.Binding;
 using Mediator.Net.Context;
 using Mediator.Net.Contracts;
 
-namespace Mediator.Net.Pipeline
+namespace Mediator.Net.Pipeline.PublishPipe
 {
     class PublishPipe<TContext> : IPublishPipe<TContext> where TContext : IPublishContext<IEvent>
     {

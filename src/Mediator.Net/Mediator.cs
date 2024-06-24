@@ -5,7 +5,11 @@ using System.Threading;
 using System.Threading.Tasks;
 using Mediator.Net.Context;
 using Mediator.Net.Contracts;
-using Mediator.Net.Pipeline;
+using Mediator.Net.Pipeline.Command;
+using Mediator.Net.Pipeline.Event;
+using Mediator.Net.Pipeline.Global;
+using Mediator.Net.Pipeline.PublishPipe;
+using Mediator.Net.Pipeline.Request;
 
 namespace Mediator.Net
 {

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
@@ -8,8 +7,9 @@ using System.Threading.Tasks;
 using Mediator.Net.Binding;
 using Mediator.Net.Context;
 using Mediator.Net.Contracts;
+using Mediator.Net.Pipeline.Exceptions;
 
-namespace Mediator.Net.Pipeline
+namespace Mediator.Net.Pipeline.Request
 {
     class RequestPipe<TContext> : IRequestReceivePipe<TContext>
         where TContext : IReceiveContext<IRequest>

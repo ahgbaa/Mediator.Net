@@ -1,6 +1,5 @@
 ﻿using System;
 using SimpleInjector;
-using SimpleInjector.Extensions.LifetimeScoping;
 
 namespace Mediator.Net.SimpleInjector
 {

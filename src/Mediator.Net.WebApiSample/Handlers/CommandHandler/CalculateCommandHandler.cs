@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using Mediator.Net.Context;
 using Mediator.Net.Contracts;
+using Mediator.Net.WebApiSample.Messages.Commands;
 
 namespace Mediator.Net.WebApiSample.Handlers.CommandHandler
 {

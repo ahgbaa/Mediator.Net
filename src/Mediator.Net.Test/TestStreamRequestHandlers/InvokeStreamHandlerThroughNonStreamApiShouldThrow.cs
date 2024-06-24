@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Mediator.Net.Binding;
 using Mediator.Net.TestUtil.Handlers.RequestHandlers;
@@ -9,7 +8,6 @@ using Mediator.Net.TestUtil.Middlewares;
 using Shouldly;
 using TestStack.BDDfy;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace Mediator.Net.Test.TestStreamRequestHandlers
 {

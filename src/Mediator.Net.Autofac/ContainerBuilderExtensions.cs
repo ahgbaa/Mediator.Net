@@ -1,6 +1,4 @@
 ﻿using Autofac;
-using Autofac.Core;
-using Mediator.Net.Binding;
 
 namespace Mediator.Net.Autofac
 {

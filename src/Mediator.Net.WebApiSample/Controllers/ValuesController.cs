@@ -1,7 +1,7 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Mediator.Net.TestUtil.Messages;
 using Mediator.Net.WebApiSample.Handlers.CommandHandler;
+using Mediator.Net.WebApiSample.Messages.Commands;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Mediator.Net.WebApiSample.Controllers

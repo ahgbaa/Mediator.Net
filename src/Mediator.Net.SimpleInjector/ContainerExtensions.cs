@@ -1,5 +1,4 @@
-﻿using Mediator.Net.Binding;
-using SimpleInjector;
+﻿using SimpleInjector;
 
 namespace Mediator.Net.SimpleInjector
 {

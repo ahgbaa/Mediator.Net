@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Collections.Specialized;
-using Mediator.Net.Contracts;
+﻿using Mediator.Net.Contracts;
 
 namespace Mediator.Net.Context
 {

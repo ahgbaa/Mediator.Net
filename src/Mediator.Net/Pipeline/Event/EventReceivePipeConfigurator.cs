@@ -1,12 +1,10 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using Mediator.Net.Binding;
 using Mediator.Net.Context;
 using Mediator.Net.Contracts;
 
-
-namespace Mediator.Net.Pipeline
+namespace Mediator.Net.Pipeline.Event
 {
     public class EventReceivePipeConfigurator : IEventReceivePipeConfigurator
     {
