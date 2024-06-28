@@ -25,9 +25,9 @@ namespace Mediator.Net
         public Mediator(
             ICommandReceivePipe<IReceiveContext<ICommand>> commandReceivePipe,
             IEventReceivePipe<IReceiveContext<IEvent>> eventReceivePipe,
-            IRequestReceivePipe<IReceiveContext<IRequest>> requestPipe, 
-            IPublishPipe<IPublishContext<IEvent>> publishPipe, 
-            IGlobalReceivePipe<IReceiveContext<IMessage>> globalPipe, 
+            IRequestReceivePipe<IReceiveContext<IRequest>> requestPipe,
+            IPublishPipe<IPublishContext<IEvent>> publishPipe,
+            IGlobalReceivePipe<IReceiveContext<IMessage>> globalPipe,
             IDependencyScope scope = null)
         {
             _commandReceivePipe = commandReceivePipe;
@@ -39,44 +39,51 @@ namespace Mediator.Net
         }
 
 
-        public async Task SendAsync<TMessage>(TMessage cmd, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task SendAsync<TMessage>(TMessage cmd,
+            CancellationToken cancellationToken = default(CancellationToken))
             where TMessage : ICommand
         {
             await SendMessage(cmd, cancellationToken).ConfigureAwait(false);
         }
 
-        public async Task<TResponse> SendAsync<TMessage, TResponse>(TMessage cmd, CancellationToken cancellationToken = default(CancellationToken)) where TMessage : ICommand where TResponse : IResponse
+        public async Task<TResponse> SendAsync<TMessage, TResponse>(TMessage cmd,
+            CancellationToken cancellationToken = default(CancellationToken))
+            where TMessage : ICommand where TResponse : IResponse
         {
             return await SendMessage<TMessage, TResponse>(cmd, cancellationToken).ConfigureAwait(false);
         }
 
         public async Task SendAsync<TMessage>(IReceiveContext<TMessage> receiveContext,
             CancellationToken cancellationToken = default(CancellationToken))
-        where TMessage : ICommand
+            where TMessage : ICommand
         {
             await SendMessage(receiveContext, cancellationToken).ConfigureAwait(false);
         }
 
-        public async Task PublishAsync<TMessage>(TMessage evt, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task PublishAsync<TMessage>(TMessage evt,
+            CancellationToken cancellationToken = default(CancellationToken))
             where TMessage : IEvent
         {
             await SendMessage(evt, cancellationToken).ConfigureAwait(false);
         }
 
-        public async Task PublishAsync<TMessage>(IReceiveContext<TMessage> receiveContext, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task PublishAsync<TMessage>(IReceiveContext<TMessage> receiveContext,
+            CancellationToken cancellationToken = default(CancellationToken))
             where TMessage : IEvent
         {
             await SendMessage(receiveContext, cancellationToken).ConfigureAwait(false);
         }
 
-        public async Task<TResponse> RequestAsync<TRequest, TResponse>(TRequest request, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<TResponse> RequestAsync<TRequest, TResponse>(TRequest request,
+            CancellationToken cancellationToken = default(CancellationToken))
             where TRequest : IRequest
             where TResponse : IResponse
         {
             return await SendMessage<TRequest, TResponse>(request, cancellationToken).ConfigureAwait(false);
         }
 
-        public async Task<TResponse> RequestAsync<TRequest, TResponse>(IReceiveContext<TRequest> receiveContext, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<TResponse> RequestAsync<TRequest, TResponse>(IReceiveContext<TRequest> receiveContext,
+            CancellationToken cancellationToken = default(CancellationToken))
             where TRequest : IRequest
             where TResponse : IResponse
         {
@@ -86,70 +93,86 @@ namespace Mediator.Net
 
         public IAsyncEnumerable<TResponse> CreateStream<TRequest, TResponse>(
             IReceiveContext<TRequest> receiveContext,
-            CancellationToken cancellationToken = default(CancellationToken)) where TRequest : IMessage where TResponse : IResponse
+            CancellationToken cancellationToken = default(CancellationToken))
+            where TRequest : IMessage where TResponse : IResponse
         {
-            return  CreateStreamInternal<TRequest,TResponse>(receiveContext, cancellationToken);
+            return CreateStreamInternal<TRequest, TResponse>(receiveContext, cancellationToken);
         }
 
         public IAsyncEnumerable<TResponse> CreateStream<TRequest, TResponse>(TRequest request,
             CancellationToken cancellationToken = default) where TRequest : IMessage where TResponse : IResponse
         {
-            return CreateStreamInternal<TRequest,TResponse>(request, cancellationToken);
+            return CreateStreamInternal<TRequest, TResponse>(request, cancellationToken);
         }
 
-        private async Task<TResponse> SendMessage<TMessage, TResponse>(TMessage msg, CancellationToken cancellationToken)
+        private async Task<TResponse> SendMessage<TMessage, TResponse>(TMessage msg,
+            CancellationToken cancellationToken)
             where TMessage : IMessage
         {
-
-            var receiveContext = (IReceiveContext<TMessage>)Activator.CreateInstance(typeof(ReceiveContext<>).MakeGenericType(msg.GetType()), msg);
+            // 指定 ReceiveContext<> 中的泛型类型，并进行 ReceiveContext<> 的有参构造
+            var receiveContext =
+                (IReceiveContext<TMessage>)Activator.CreateInstance(
+                    typeof(ReceiveContext<>).MakeGenericType(msg.GetType()), msg);
             RegisterServiceIfRequired(receiveContext);
-            
+
             receiveContext.ResultDataType = typeof(TResponse);
-            
-            var task = _globalPipe.Connect((IReceiveContext<IMessage>) receiveContext, cancellationToken);
-            
+
+            var task = _globalPipe.Connect((IReceiveContext<IMessage>)receiveContext, cancellationToken);
+
             var result = await task.ConfigureAwait(false);
 
             return (TResponse)(receiveContext.Result ?? result);
         }
-        
-        private IAsyncEnumerable<TResponse> CreateStreamInternal<TMessage, TResponse>(IReceiveContext<TMessage> customReceiveContext, [EnumeratorCancellation] CancellationToken cancellationToken)
+
+        private IAsyncEnumerable<TResponse> CreateStreamInternal<TMessage, TResponse>(
+            IReceiveContext<TMessage> customReceiveContext,
+            [EnumeratorCancellation] CancellationToken cancellationToken)
             where TMessage : IMessage
         {
             RegisterServiceIfRequired(customReceiveContext);
 
-            return _globalPipe.ConnectStream<TResponse>((IReceiveContext<IMessage>)customReceiveContext, cancellationToken);
+            return _globalPipe.ConnectStream<TResponse>((IReceiveContext<IMessage>)customReceiveContext,
+                cancellationToken);
         }
-        
-        private IAsyncEnumerable<TResponse> CreateStreamInternal<TMessage, TResponse>(TMessage msg, [EnumeratorCancellation] CancellationToken cancellationToken)
+
+        private IAsyncEnumerable<TResponse> CreateStreamInternal<TMessage, TResponse>(TMessage msg,
+            [EnumeratorCancellation] CancellationToken cancellationToken)
             where TMessage : IMessage
         {
             if (msg is IEvent)
                 throw new NotSupportedException("IEvent is not supported for CreateStream");
-            
-            var receiveContext = (IReceiveContext<TMessage>)Activator.CreateInstance(typeof(ReceiveContext<>).MakeGenericType(msg.GetType()), msg);
+
+            var receiveContext =
+                (IReceiveContext<TMessage>)Activator.CreateInstance(
+                    typeof(ReceiveContext<>).MakeGenericType(msg.GetType()), msg);
             RegisterServiceIfRequired(receiveContext);
 
             return _globalPipe.ConnectStream<TResponse>((IReceiveContext<IMessage>)receiveContext, cancellationToken);
         }
-        
+
         private async Task<object> SendMessage<TMessage>(TMessage msg, CancellationToken cancellationToken)
             where TMessage : IMessage
         {
-
-            var receiveContext = (IReceiveContext<TMessage>)Activator.CreateInstance(typeof(ReceiveContext<>).MakeGenericType(msg.GetType()), msg);
+            // MakeGenericType方法反射指定 ReceiveContext<> 中泛型参数类型为 msg类型，通过CreateInstance进行有参构造
+            //创建一个 receiveContext 接收上下文
+            var receiveContext =
+                (IReceiveContext<TMessage>)Activator.CreateInstance(
+                    typeof(ReceiveContext<>).MakeGenericType(msg.GetType()), msg);
+            
+            // 向receiveContext中加入mediator中所拥有的pipeline
             RegisterServiceIfRequired(receiveContext);
 
             receiveContext.ResultDataType = typeof(object);
-            
-            var task = _globalPipe.Connect((IReceiveContext<IMessage>) receiveContext, cancellationToken);
-            
+
+            var task = _globalPipe.Connect((IReceiveContext<IMessage>)receiveContext, cancellationToken);
+
             var result = await task.ConfigureAwait(false);
 
             return receiveContext.Result ?? result;
         }
 
-        private async Task<object> SendMessage<TMessage>(IReceiveContext<TMessage> customReceiveContext, CancellationToken cancellationToken)
+        private async Task<object> SendMessage<TMessage>(IReceiveContext<TMessage> customReceiveContext,
+            CancellationToken cancellationToken)
             where TMessage : IMessage
         {
             RegisterServiceIfRequired(customReceiveContext);
@@ -158,8 +181,12 @@ namespace Mediator.Net
             return await task.ConfigureAwait(false);
         }
 
-        private void RegisterServiceIfRequired<TMessage>(IReceiveContext<TMessage> receiveContext) where  TMessage : IMessage
+        private void RegisterServiceIfRequired<TMessage>(IReceiveContext<TMessage> receiveContext)
+            where TMessage : IMessage
         {
+            //从这块代码可以直接看出，IPublishContext类 和 IReceiveContext类 这两个上下文类是服务与 哪些 IMessage
+            // IPublishContext上下文是IEvent的message的 上下文
+            // IReceiveContext上下文是ICommand，IEvent，IRequest的message的 上下文
             receiveContext.RegisterService(this);
             if (!receiveContext.TryGetService(out IPublishPipe<IPublishContext<IEvent>> _))
             {

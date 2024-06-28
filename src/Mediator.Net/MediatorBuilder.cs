@@ -123,27 +123,31 @@ namespace Mediator.Net
 
         private IMediator BuildMediator(IDependencyScope scope = null)
         {
+            // 使用 commandReceivePipeConfigurator 进行 commandReceivePipe链的拼接
             var commandReceivePipeConfigurator = new CommandReceivePipeConfigurator(MessageHandlerRegistry, scope);
             _commandReceivePipeConfiguratorAction?.Invoke(commandReceivePipeConfigurator);
             var commandReceivePipe = commandReceivePipeConfigurator.Build();
 
+            // 使用 eventReceivePipeConfigurator 进行 eventReceivePipe链的拼接
             var eventReceivePipeConfigurator = new EventReceivePipeConfigurator(MessageHandlerRegistry, scope);
             _eventReceivePipeConfiguratorAction?.Invoke(eventReceivePipeConfigurator);
             var eventReceivePipe = eventReceivePipeConfigurator.Build();
 
-
+            // 使用 requestPipeConfigurator 进行 requestPipe链的拼接
             var requestPipeConfigurator = new RequestPipeConfigurator(MessageHandlerRegistry, scope);
             _requestPipeConfiguratorAction?.Invoke(requestPipeConfigurator);
             var requestPipe = requestPipeConfigurator.Build();
 
+            // 使用 publishPipeConfigurator 进行 publishPipe链的拼接
             var publishPipeConfigurator = new PublishPipeConfigurator(scope);
             _publishPipeConfiguratorAction?.Invoke(publishPipeConfigurator);
             var publishPipe = publishPipeConfigurator.Build();
 
+            // 使用 globalPipeConfigurator 进行globalPipe链的拼接
             var globalPipeConfigurator = new GlobalRececivePipeConfigurator(scope);
             _globalReceivePipeConfiguratorAction?.Invoke(globalPipeConfigurator);
             var globalReceivePipe = globalPipeConfigurator.Build();
-
+            
             return new Mediator(commandReceivePipe, eventReceivePipe, requestPipe, publishPipe, globalReceivePipe,
                 scope);
         }
