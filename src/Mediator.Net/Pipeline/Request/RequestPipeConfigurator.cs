@@ -13,6 +13,7 @@ namespace Mediator.Net.Pipeline.Request
         private readonly IDependencyScope _resolver;
         private readonly IList<IPipeSpecification<IReceiveContext<IRequest>>> _specifications;
         public IDependencyScope DependencyScope => _resolver;
+
         public RequestPipeConfigurator(MessageHandlerRegistry messageHandlerRegistry, IDependencyScope resolver = null)
         {
             _messageHandlerRegistry = messageHandlerRegistry;
@@ -28,14 +29,17 @@ namespace Mediator.Net.Pipeline.Request
                 for (int i = _specifications.Count - 1; i >= 0; i--)
                 {
                     current = i == _specifications.Count - 1
-                        ? new RequestPipe<IReceiveContext<IRequest>>(_specifications[i], null, _resolver, _messageHandlerRegistry)
-                        : new RequestPipe<IReceiveContext<IRequest>>(_specifications[i], current, _resolver, _messageHandlerRegistry);
+                        ? new RequestPipe<IReceiveContext<IRequest>>(_specifications[i], null, _resolver,
+                            _messageHandlerRegistry)
+                        : new RequestPipe<IReceiveContext<IRequest>>(_specifications[i], current, _resolver,
+                            _messageHandlerRegistry);
                 }
-
             }
             else
             {
-                current = new RequestPipe<IReceiveContext<IRequest>>(new EmptyPipeSpecification<IReceiveContext<IRequest>>(), null, _resolver, _messageHandlerRegistry);
+                current = new RequestPipe<IReceiveContext<IRequest>>(
+                    new EmptyPipeSpecification<IReceiveContext<IRequest>>(), null, _resolver,
+                    _messageHandlerRegistry);
             }
 
             return current;

@@ -46,7 +46,8 @@ namespace Mediator.Net.Pipeline.Command
             else
             {
                 current = new CommandReceivePipe<IReceiveContext<ICommand>>(
-                    new EmptyPipeSpecification<IReceiveContext<ICommand>>(), null, _resolver, _messageHandlerRegistry);
+                    new EmptyPipeSpecification<IReceiveContext<ICommand>>(), null, _resolver,
+                    _messageHandlerRegistry);
             }
 
             return current;

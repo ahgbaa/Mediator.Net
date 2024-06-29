@@ -16,7 +16,8 @@ namespace Mediator.Net.Pipeline.Global
         private readonly IPipeSpecification<TContext> _specification;
 
 
-        public async IAsyncEnumerable<TResponse> ConnectStream<TResponse>(TContext context, CancellationToken cancellationToken)
+        public async IAsyncEnumerable<TResponse> ConnectStream<TResponse>(TContext context,
+            CancellationToken cancellationToken)
         {
             IAsyncEnumerable<TResponse> result = null;
             try
@@ -89,6 +90,7 @@ namespace Mediator.Net.Pipeline.Global
                 await task.ConfigureAwait(false);
                 result = PipeHelper.GetResultFromTask(task);
             }
+
             return context.Result ?? result;
         }
 
@@ -100,7 +102,8 @@ namespace Mediator.Net.Pipeline.Global
                 {
                     if (context.TryGetService(out ICommandReceivePipe<IReceiveContext<ICommand>> commandPipe))
                     {
-                        return await commandPipe.Connect((IReceiveContext<ICommand>)context, cancellationToken).ConfigureAwait(false);
+                        return await commandPipe.Connect((IReceiveContext<ICommand>)context, cancellationToken)
+                            .ConfigureAwait(false);
                     }
 
                     break;
@@ -110,20 +113,24 @@ namespace Mediator.Net.Pipeline.Global
                 {
                     if (context.TryGetService(out IEventReceivePipe<IReceiveContext<IEvent>> eventPipe))
                     {
-                        await eventPipe.Connect((IReceiveContext<IEvent>)context, cancellationToken).ConfigureAwait(false);
+                        await eventPipe.Connect((IReceiveContext<IEvent>)context, cancellationToken)
+                            .ConfigureAwait(false);
                     }
 
                     break;
                 }
 
-                case IRequest _ when context.TryGetService(out IRequestReceivePipe<IReceiveContext<IRequest>> requestPipe):
-                    return await requestPipe.Connect((IReceiveContext<IRequest>)context, cancellationToken).ConfigureAwait(false);
+                case IRequest _
+                    when context.TryGetService(out IRequestReceivePipe<IReceiveContext<IRequest>> requestPipe):
+                    return await requestPipe.Connect((IReceiveContext<IRequest>)context, cancellationToken)
+                        .ConfigureAwait(false);
             }
 
             return (object)null;
         }
-        
-        private IAsyncEnumerable<TResponse> ConnectToStreamPipe<TResponse>(TContext context, CancellationToken cancellationToken)
+
+        private IAsyncEnumerable<TResponse> ConnectToStreamPipe<TResponse>(TContext context,
+            CancellationToken cancellationToken)
         {
             switch (context.Message)
             {
@@ -131,7 +138,8 @@ namespace Mediator.Net.Pipeline.Global
                 {
                     if (context.TryGetService(out ICommandReceivePipe<IReceiveContext<ICommand>> commandPipe))
                     {
-                        return commandPipe.ConnectStream<TResponse>((IReceiveContext<ICommand>)context, cancellationToken);
+                        return commandPipe.ConnectStream<TResponse>((IReceiveContext<ICommand>)context,
+                            cancellationToken);
                     }
 
                     break;
@@ -142,7 +150,8 @@ namespace Mediator.Net.Pipeline.Global
                     throw new NotSupportedException("Stream is not supported for IEvent");
                 }
 
-                case IRequest _ when context.TryGetService(out IRequestReceivePipe<IReceiveContext<IRequest>> requestPipe):
+                case IRequest _
+                    when context.TryGetService(out IRequestReceivePipe<IReceiveContext<IRequest>> requestPipe):
                     return requestPipe.ConnectStream<TResponse>((IReceiveContext<IRequest>)context, cancellationToken);
             }
 

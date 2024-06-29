@@ -10,11 +10,13 @@ namespace Mediator.Net.Pipeline.PublishPipe
         private readonly IDependencyScope _resolver;
         private readonly IList<IPipeSpecification<IPublishContext<IEvent>>> _specifications;
         public IDependencyScope DependencyScope => _resolver;
+
         public PublishPipeConfigurator(IDependencyScope resolver = null)
         {
             _resolver = resolver;
             _specifications = new List<IPipeSpecification<IPublishContext<IEvent>>>();
         }
+
         public IPublishPipe<IPublishContext<IEvent>> Build()
         {
             IPublishPipe<IPublishContext<IEvent>> current = null;
@@ -34,13 +36,12 @@ namespace Mediator.Net.Pipeline.PublishPipe
                             new PublishPipe<IPublishContext<IEvent>>(_specifications[i], current, _resolver);
                         current = thisPipe;
                     }
-
-
                 }
             }
             else
             {
-                current = new PublishPipe<IPublishContext<IEvent>>(new EmptyPipeSpecification<IPublishContext<IEvent>>(), null, _resolver);
+                current = new PublishPipe<IPublishContext<IEvent>>(
+                    new EmptyPipeSpecification<IPublishContext<IEvent>>(), null, _resolver);
             }
 
             return current;

@@ -13,7 +13,8 @@ namespace Mediator.Net.Pipeline.PublishPipe
         private readonly IPipeSpecification<TContext> _specification;
         private readonly IDependencyScope _resolver;
 
-        public PublishPipe(IPipeSpecification<TContext> specification, IPipe<TContext> next, IDependencyScope resolver = null)
+        public PublishPipe(IPipeSpecification<TContext> specification, IPipe<TContext> next,
+            IDependencyScope resolver = null)
         {
             Next = next;
             _specification = specification;
@@ -52,10 +53,12 @@ namespace Mediator.Net.Pipeline.PublishPipe
             {
                 await _specification.OnException(e, context).ConfigureAwait(false);
             }
+
             return null;
         }
 
-        public IAsyncEnumerable<TResponse> ConnectStream<TResponse>(TContext context, CancellationToken cancellationToken)
+        public IAsyncEnumerable<TResponse> ConnectStream<TResponse>(TContext context,
+            CancellationToken cancellationToken)
         {
             throw new NotSupportedException("Stream is not supported in event pipeline");
         }

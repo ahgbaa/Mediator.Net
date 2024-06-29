@@ -20,7 +20,8 @@ namespace Mediator.Net.Pipeline.Command
         private readonly MessageHandlerRegistry _messageHandlerRegistry;
 
 
-        public CommandReceivePipe(IPipeSpecification<TContext> specification, IPipe<TContext> next, IDependencyScope resolver, MessageHandlerRegistry messageHandlerRegistry)
+        public CommandReceivePipe(IPipeSpecification<TContext> specification, IPipe<TContext> next,
+            IDependencyScope resolver, MessageHandlerRegistry messageHandlerRegistry)
         {
             _specification = specification;
             _resolver = resolver;
@@ -36,11 +37,10 @@ namespace Mediator.Net.Pipeline.Command
                 await _specification.BeforeExecute(context, cancellationToken).ConfigureAwait(false);
                 await _specification.Execute(context, cancellationToken).ConfigureAwait(false);
                 result = await (Next?.Connect(context, cancellationToken) ??
-                                    ConnectToHandler(context, cancellationToken)).ConfigureAwait(false);
+                                ConnectToHandler(context, cancellationToken)).ConfigureAwait(false);
 
                 context.Result = result as IResponse;
                 await _specification.AfterExecute(context, cancellationToken).ConfigureAwait(false);
-                
             }
             catch (TargetInvocationException e)
             {
@@ -54,7 +54,8 @@ namespace Mediator.Net.Pipeline.Command
             return context.Result ?? result;
         }
 
-        public async IAsyncEnumerable<TResponse> ConnectStream<TResponse>(TContext context, CancellationToken cancellationToken)
+        public async IAsyncEnumerable<TResponse> ConnectStream<TResponse>(TContext context,
+            CancellationToken cancellationToken)
         {
             IAsyncEnumerable<TResponse> result = null;
             try
@@ -92,7 +93,8 @@ namespace Mediator.Net.Pipeline.Command
 
         private async Task<object> ConnectToHandler(TContext context, CancellationToken cancellationToken)
         {
-            var handlers = PipeHelper.GetHandlerBindings(context, true, _messageHandlerRegistry);
+            var handlers =
+                PipeHelper.GetHandlerBindings(context, true, _messageHandlerRegistry);
 
             if (handlers.Count() > 1)
             {
@@ -104,7 +106,9 @@ namespace Mediator.Net.Pipeline.Command
             var handlerType = binding.HandlerType;
             var messageType = context.Message.GetType();
 
-            var handleMethod = handlerType.GetRuntimeMethods().Single(m => PipeHelper.IsHandleMethod(m, messageType, false));
+            //取出 handle 方法
+            var handleMethod = handlerType.GetRuntimeMethods()
+                .Single(m => PipeHelper.IsHandleMethod(m, messageType, false));
 
             var handler = (_resolver == null) ? Activator.CreateInstance(handlerType) : _resolver.Resolve(handlerType);
 
@@ -119,7 +123,9 @@ namespace Mediator.Net.Pipeline.Command
 
             return PipeHelper.GetResultFromTask(task);
         }
-        private IAsyncEnumerable<TResponse> ConnectToStreamHandler<TResponse>(TContext context, CancellationToken cancellationToken)
+
+        private IAsyncEnumerable<TResponse> ConnectToStreamHandler<TResponse>(TContext context,
+            CancellationToken cancellationToken)
         {
             var handlers = PipeHelper.GetHandlerBindings(context, true, _messageHandlerRegistry);
 
@@ -133,11 +139,14 @@ namespace Mediator.Net.Pipeline.Command
             var handlerType = binding.HandlerType;
             var messageType = context.Message.GetType();
 
-            var handleMethod = handlerType.GetRuntimeMethods().Single(m => PipeHelper.IsHandleMethod(m, messageType, false));
+            var handleMethod = handlerType.GetRuntimeMethods()
+                .Single(m => PipeHelper.IsHandleMethod(m, messageType, false));
 
             var handler = (_resolver == null) ? Activator.CreateInstance(handlerType) : _resolver.Resolve(handlerType);
 
-            var result =  handleMethod.Invoke(handler, new object[] { context, cancellationToken }) as IAsyncEnumerable<TResponse>;
+            var result =
+                handleMethod.Invoke(handler,
+                    new object[] { context, cancellationToken }) as IAsyncEnumerable<TResponse>;
 
             return result;
         }

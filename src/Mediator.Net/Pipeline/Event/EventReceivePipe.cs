@@ -9,7 +9,6 @@ using Mediator.Net.Context;
 using Mediator.Net.Contracts;
 
 
-
 namespace Mediator.Net.Pipeline.Event
 {
     public class EventReceivePipe<TContext> : IEventReceivePipe<TContext>
@@ -20,7 +19,8 @@ namespace Mediator.Net.Pipeline.Event
         private readonly MessageHandlerRegistry _messageHandlerRegistry;
 
 
-        public EventReceivePipe(IPipeSpecification<TContext> specification, IPipe<TContext> next, IDependencyScope resolver, MessageHandlerRegistry messageHandlerRegistry)
+        public EventReceivePipe(IPipeSpecification<TContext> specification, IPipe<TContext> next,
+            IDependencyScope resolver, MessageHandlerRegistry messageHandlerRegistry)
         {
             _specification = specification;
             _resolver = resolver;
@@ -46,10 +46,12 @@ namespace Mediator.Net.Pipeline.Event
             {
                 await _specification.OnException(e, context).ConfigureAwait(false);
             }
+
             return null;
         }
 
-        public IAsyncEnumerable<TResponse> ConnectStream<TResponse>(TContext context, CancellationToken cancellationToken)
+        public IAsyncEnumerable<TResponse> ConnectStream<TResponse>(TContext context,
+            CancellationToken cancellationToken)
         {
             throw new NotSupportedException("Stream is not supported in EventReceivePipe");
         }
@@ -58,20 +60,26 @@ namespace Mediator.Net.Pipeline.Event
 
         private async Task ConnectToHandler(TContext context, CancellationToken cancellationToken)
         {
-            var handlerBindings = PipeHelper.GetHandlerBindings(context, false, _messageHandlerRegistry);
+            // 获取所有TContext对应的handlerBindings
+            var handlerBindings = 
+                PipeHelper.GetHandlerBindings(context, false, _messageHandlerRegistry);
 
             foreach (var handlerBinding in handlerBindings)
             {
                 var handlerType = handlerBinding.HandlerType;
                 var messageType = context.Message.GetType();
 
-                var handleMethods = handlerType.GetRuntimeMethods().Where(m => PipeHelper.IsHandleMethod(m, messageType, true));
+                //获取所有的 handle 重载方法
+                var handleMethods = handlerType.GetRuntimeMethods()
+                    .Where(m => PipeHelper.IsHandleMethod(m, messageType, true));
 
                 foreach (var handleMethod in handleMethods)
                 {
-                    var handler = (_resolver == null) ? Activator.CreateInstance(handlerType) : _resolver.Resolve(handlerType);
+                    var handler = (_resolver == null)
+                        ? Activator.CreateInstance(handlerType)
+                        : _resolver.Resolve(handlerType);
                     var task = (Task)handleMethod.Invoke(handler, new object[] { context, cancellationToken });
-                    await task.ConfigureAwait(false);    
+                    await task.ConfigureAwait(false);
                 }
             }
         }
