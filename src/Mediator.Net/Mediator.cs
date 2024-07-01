@@ -132,9 +132,9 @@ namespace Mediator.Net
             return _globalPipe.ConnectStream<TResponse>((IReceiveContext<IMessage>)receiveContext, cancellationToken);
         }
 
-        // ICommand，TRequest可调用到此处
+        // ICommand，IRequest可调用到此处
         //规定了传入和传出值类型，并且传出值类型会进行强转
-        //此处可以看到到调用 SendMessage<TMessage, TResponse> 的 ICommand，IEvent 是有返回值，且返回值类型是不可变的
+        //此处可以看到到调用 SendMessage<TMessage, TResponse> 的 ICommand，IRequest 是有返回值，且返回值类型是不可变的
         private async Task<TResponse> SendMessage<TMessage, TResponse>(TMessage msg,
             CancellationToken cancellationToken)
             where TMessage : IMessage
@@ -178,7 +178,16 @@ namespace Mediator.Net
 
             return receiveContext.Result ?? result;
         }
-
+        
+        
+        //看此处可能时，可能会有个小疑问就是，
+        //SendMessage<TMessage>(IReceiveContext<TMessage> customReceiveContext， CancellationToken cancellationToken)
+        //只有IEvent是可以使用到publishAsync,那为啥 IRequest和ICommand都用到了而IReceiveContext，因为 而IReceiveContext 是所有消息
+        //的上下文，而只有IEvent是可以进行消息重推的，而这个方法的正确使用：
+        //大概可能应该是：
+        //          （1）IEvent需要消息重推的时候，使用该方法
+        //          （2）自定义 IReceiveContext 上下文的时候使用到
+        
         //ICommand,IEvent,IRequest 可调到此处
         //为什么此处会的SendMessage<TMessage> 会允许存在返回值呢？
         //首先他的入参是 IReceiveContext<TMessage>，而IReceiveContext<TMessage>是允许消息重推，并且会先执行一遍 publishPipeLine
