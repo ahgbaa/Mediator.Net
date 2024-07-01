@@ -48,7 +48,8 @@ namespace Mediator.Net
 
         public async Task<TResponse> SendAsync<TMessage, TResponse>(TMessage cmd,
             CancellationToken cancellationToken = default(CancellationToken))
-            where TMessage : ICommand where TResponse : IResponse
+            where TMessage : ICommand
+            where TResponse : IResponse
         {
             return await SendMessage<TMessage, TResponse>(cmd, cancellationToken).ConfigureAwait(false);
         }
@@ -105,25 +106,6 @@ namespace Mediator.Net
             return CreateStreamInternal<TRequest, TResponse>(request, cancellationToken);
         }
 
-        private async Task<TResponse> SendMessage<TMessage, TResponse>(TMessage msg,
-            CancellationToken cancellationToken)
-            where TMessage : IMessage
-        {
-            // 指定 ReceiveContext<> 中的泛型类型，并进行 ReceiveContext<> 的有参构造
-            var receiveContext =
-                (IReceiveContext<TMessage>)Activator.CreateInstance(
-                    typeof(ReceiveContext<>).MakeGenericType(msg.GetType()), msg);
-            RegisterServiceIfRequired(receiveContext);
-
-            receiveContext.ResultDataType = typeof(TResponse);
-
-            var task = _globalPipe.Connect((IReceiveContext<IMessage>)receiveContext, cancellationToken);
-
-            var result = await task.ConfigureAwait(false);
-
-            return (TResponse)(receiveContext.Result ?? result);
-        }
-
         private IAsyncEnumerable<TResponse> CreateStreamInternal<TMessage, TResponse>(
             IReceiveContext<TMessage> customReceiveContext,
             [EnumeratorCancellation] CancellationToken cancellationToken)
@@ -150,6 +132,31 @@ namespace Mediator.Net
             return _globalPipe.ConnectStream<TResponse>((IReceiveContext<IMessage>)receiveContext, cancellationToken);
         }
 
+        // ICommand，TRequest可调用到此处
+        //规定了传入和传出值类型，并且传出值类型会进行强转
+        //此处可以看到到调用 SendMessage<TMessage, TResponse> 的 ICommand，IEvent 是有返回值，且返回值类型是不可变的
+        private async Task<TResponse> SendMessage<TMessage, TResponse>(TMessage msg,
+            CancellationToken cancellationToken)
+            where TMessage : IMessage
+        {
+            // 指定 ReceiveContext<> 中的泛型类型，并进行 ReceiveContext<> 的有参构造
+            var receiveContext =
+                (IReceiveContext<TMessage>)Activator.CreateInstance(
+                    typeof(ReceiveContext<>).MakeGenericType(msg.GetType()), msg);
+            RegisterServiceIfRequired(receiveContext);
+
+            receiveContext.ResultDataType = typeof(TResponse);
+
+            var task = _globalPipe.Connect((IReceiveContext<IMessage>)receiveContext, cancellationToken);
+
+            var result = await task.ConfigureAwait(false);
+
+            return (TResponse)(receiveContext.Result ?? result);
+        }
+
+
+        // ICommand，IEvent 可调到此处
+        //此处可以看到到调用 SendMessage<TMessage>的 ICommand，IEvent 是无返回值，
         private async Task<object> SendMessage<TMessage>(TMessage msg, CancellationToken cancellationToken)
             where TMessage : IMessage
         {
@@ -158,10 +165,11 @@ namespace Mediator.Net
             var receiveContext =
                 (IReceiveContext<TMessage>)Activator.CreateInstance(
                     typeof(ReceiveContext<>).MakeGenericType(msg.GetType()), msg);
-            
+
             // 向receiveContext中加入mediator中所拥有的pipeline
             RegisterServiceIfRequired(receiveContext);
 
+            //获取表示 object 类型的 System.Type 对象
             receiveContext.ResultDataType = typeof(object);
 
             var task = _globalPipe.Connect((IReceiveContext<IMessage>)receiveContext, cancellationToken);
@@ -171,6 +179,16 @@ namespace Mediator.Net
             return receiveContext.Result ?? result;
         }
 
+        //ICommand,IEvent,IRequest 可调到此处
+        //为什么此处会的SendMessage<TMessage> 会允许存在返回值呢？
+        //首先他的入参是 IReceiveContext<TMessage>，而IReceiveContext<TMessage>是允许消息重推，并且会先执行一遍 publishPipeLine
+        //然后再调用 PublishAsync 进行重推
+        
+        // 但是有个疑问的是 该方法允许 ICommand，IRequest进入进行消息处理，但是  ICommand，IRequest似乎无法使用到
+        // IReceiveContext中的PublishAsync中的重推功能
+        
+        //ICommand 和 IEvent  如果使用这个的话是可以设置到返回值了，
+        //而不是 SendMessage<TMessage>(TMessage msg, CancellationToken cancellationToken)中无法获取到返回值
         private async Task<object> SendMessage<TMessage>(IReceiveContext<TMessage> customReceiveContext,
             CancellationToken cancellationToken)
             where TMessage : IMessage
@@ -187,6 +205,10 @@ namespace Mediator.Net
             //从这块代码可以直接看出，IPublishContext类 和 IReceiveContext类 这两个上下文类是服务与 哪些 IMessage
             // IPublishContext上下文是IEvent的message的 上下文
             // IReceiveContext上下文是ICommand，IEvent，IRequest的message的 上下文
+
+
+            // IPublishContext 和 IReceiveContext 的区别在于：在 IReceiveContext 中可以进行消息重推，IPublishContext无法进行消
+            // 息重新推
             receiveContext.RegisterService(this);
             if (!receiveContext.TryGetService(out IPublishPipe<IPublishContext<IEvent>> _))
             {

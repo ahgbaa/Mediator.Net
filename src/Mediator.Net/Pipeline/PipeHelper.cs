@@ -55,6 +55,15 @@ namespace Mediator.Net.Pipeline
                            .IsAssignableFrom(messageType.GetTypeInfo()));
         }
 
+        //检查task是否具有result属性
+        //检查task是否为泛型
+        //  为什么要检查task是否为泛型？
+        //     非泛型的Task表示一个异步操作，但没有指定操作的返回类型。
+        //      Task task = SomeAsyncMethod();
+        //     泛型的 Task<TResult> 表示异步操作，并且指定了操作的返回类型 TResult 
+        //       Task<int> task = GetNumberAsync();
+        //获取result属性的get方法
+        //调用get方法胡傲气结构
         public static object GetResultFromTask(Task task)
         {
             if (task.GetType().GetRuntimeProperty("Result") == null)
