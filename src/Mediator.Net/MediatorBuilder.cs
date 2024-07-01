@@ -147,7 +147,7 @@ namespace Mediator.Net
             var globalPipeConfigurator = new GlobalRececivePipeConfigurator(scope);
             _globalReceivePipeConfiguratorAction?.Invoke(globalPipeConfigurator);
             var globalReceivePipe = globalPipeConfigurator.Build();
-            
+
             return new Mediator(commandReceivePipe, eventReceivePipe, requestPipe, publishPipe, globalReceivePipe,
                 scope);
         }
@@ -169,6 +169,11 @@ namespace Mediator.Net
                                                  TypeUtil.IsAssignableToGenericType(x.AsType(),
                                                      typeof(IStreamRequestHandler<,>))
                                                 )).ToList();
+
+            // 将 class  Xxxxx(command/request/event)Handle:I(command/request/event)Handle<Xxxxx(command/request/event)>,
+            // I(command/request/event)Handle<Xxxxx(command/request/event)>,
+            // I(command/request/event)Handle<Xxxxx(command/request/event)>
+            //中所实现的所有接口的第一个泛型参数取处作为key值，handler作为value进行，kv存储
             foreach (var handler in handlers)
             {
                 foreach (var implementedInterface in handler.ImplementedInterfaces)
