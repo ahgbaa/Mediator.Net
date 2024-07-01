@@ -11,6 +11,8 @@ using Mediator.Net.Pipeline.Global;
 using Mediator.Net.Pipeline.PublishPipe;
 using Mediator.Net.Pipeline.Request;
 
+//小结一下：IEvent，IRequest,ICommand其实是不会影响到 I(Event,Handle,Request)Handle的注册,只不过是对SendAsync,PushAsync
+//方法的调用起到限制作用
 namespace Mediator.Net
 {
     public class Mediator : IMediator
@@ -178,8 +180,8 @@ namespace Mediator.Net
 
             return receiveContext.Result ?? result;
         }
-        
-        
+
+
         //看此处可能时，可能会有个小疑问就是，
         //SendMessage<TMessage>(IReceiveContext<TMessage> customReceiveContext， CancellationToken cancellationToken)
         //只有IEvent是可以使用到publishAsync,那为啥 IRequest和ICommand都用到了而IReceiveContext，因为 而IReceiveContext 是所有消息
@@ -187,15 +189,15 @@ namespace Mediator.Net
         //大概可能应该是：
         //          （1）IEvent需要消息重推的时候，使用该方法
         //          （2）自定义 IReceiveContext 上下文的时候使用到
-        
+
         //ICommand,IEvent,IRequest 可调到此处
         //为什么此处会的SendMessage<TMessage> 会允许存在返回值呢？
         //首先他的入参是 IReceiveContext<TMessage>，而IReceiveContext<TMessage>是允许消息重推，并且会先执行一遍 publishPipeLine
         //然后再调用 PublishAsync 进行重推
-        
+
         // 但是有个疑问的是 该方法允许 ICommand，IRequest进入进行消息处理，但是  ICommand，IRequest似乎无法使用到
         // IReceiveContext中的PublishAsync中的重推功能
-        
+
         //ICommand 和 IEvent  如果使用这个的话是可以设置到返回值了，
         //而不是 SendMessage<TMessage>(TMessage msg, CancellationToken cancellationToken)中无法获取到返回值
         private async Task<object> SendMessage<TMessage>(IReceiveContext<TMessage> customReceiveContext,

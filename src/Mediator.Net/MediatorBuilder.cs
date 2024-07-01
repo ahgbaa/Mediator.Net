@@ -153,6 +153,7 @@ namespace Mediator.Net
         }
 
 
+        //issure：其实我的 implementedInterface.GenericTypeArguments[0] 不实现 icommand，irequest，ievent，也一样可以注册到set中
         private void ScanRegistration(IEnumerable<TypeInfo> typeInfos)
         {
             //先把本身类或实现类以及父类中未实现ICommandHandler，IEventHandler，IRequestHandler，IStreamRequestHandler

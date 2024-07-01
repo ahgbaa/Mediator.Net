@@ -18,7 +18,8 @@ namespace Mediator.Net.Pipeline.Request
         private readonly IDependencyScope _resolver;
         private readonly MessageHandlerRegistry _messageHandlerRegistry;
 
-        public RequestPipe(IPipeSpecification<TContext> specification, IPipe<TContext> next, IDependencyScope resolver, MessageHandlerRegistry messageHandlerRegistry)
+        public RequestPipe(IPipeSpecification<TContext> specification, IPipe<TContext> next, IDependencyScope resolver,
+            MessageHandlerRegistry messageHandlerRegistry)
         {
             Next = next;
             _specification = specification;
@@ -50,10 +51,12 @@ namespace Mediator.Net.Pipeline.Request
                 await task.ConfigureAwait(false);
                 result = PipeHelper.GetResultFromTask(task);
             }
+
             return context.Result ?? result;
         }
 
-        public async IAsyncEnumerable<TResponse> ConnectStream<TResponse>(TContext context, CancellationToken cancellationToken)
+        public async IAsyncEnumerable<TResponse> ConnectStream<TResponse>(TContext context,
+            CancellationToken cancellationToken)
         {
             IAsyncEnumerable<TResponse> result = null;
             try
@@ -101,7 +104,8 @@ namespace Mediator.Net.Pipeline.Request
             var handlerType = binding.HandlerType;
             var messageType = context.Message.GetType();
 
-            var handleMethod = handlerType.GetRuntimeMethods().Single(m => PipeHelper.IsHandleMethod(m, messageType, false));
+            var handleMethod = handlerType.GetRuntimeMethods()
+                .Single(m => PipeHelper.IsHandleMethod(m, messageType, false));
 
             var handler = (_resolver == null) ? Activator.CreateInstance(handlerType) : _resolver.Resolve(handlerType);
 
@@ -110,7 +114,7 @@ namespace Mediator.Net.Pipeline.Request
                 throw new NotSupportedException(
                     "Connecting to a IStreamRequestHandler should use the method of mediator.CreateStream");
             }
-            
+
             var taskOrAsynEnumerable = handleMethod.Invoke(handler, new object[] { context, cancellationToken });
             switch (taskOrAsynEnumerable)
             {
@@ -131,7 +135,8 @@ namespace Mediator.Net.Pipeline.Request
 
         public IPipe<TContext> Next { get; }
 
-        private IAsyncEnumerable<TResponse> ConnectToStreamHandler<TResponse>(TContext context, CancellationToken cancellationToken)
+        private IAsyncEnumerable<TResponse> ConnectToStreamHandler<TResponse>(TContext context,
+            CancellationToken cancellationToken)
         {
             var handlers = PipeHelper.GetHandlerBindings(context, true, _messageHandlerRegistry);
 
@@ -145,11 +150,14 @@ namespace Mediator.Net.Pipeline.Request
             var handlerType = binding.HandlerType;
             var messageType = context.Message.GetType();
 
-            var handleMethod = handlerType.GetRuntimeMethods().Single(m => PipeHelper.IsHandleMethod(m, messageType, false));
+            var handleMethod = handlerType.GetRuntimeMethods()
+                .Single(m => PipeHelper.IsHandleMethod(m, messageType, false));
 
             var handler = (_resolver == null) ? Activator.CreateInstance(handlerType) : _resolver.Resolve(handlerType);
 
-            var result =  handleMethod.Invoke(handler, new object[] { context, cancellationToken }) as IAsyncEnumerable<TResponse>;
+            var result =
+                handleMethod.Invoke(handler,
+                    new object[] { context, cancellationToken }) as IAsyncEnumerable<TResponse>;
 
             return result;
         }
